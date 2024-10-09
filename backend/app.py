@@ -2,12 +2,10 @@ from kafka import KafkaProducer
 from time import sleep
 import json
 import random
-from datetime import datetime
 import random
 import time
 import json
 
-file_path = '/data/dataset_sismique.csv'
 
 producer = KafkaProducer(
     bootstrap_servers='kafka:9092',
@@ -23,9 +21,8 @@ def generate_data():
         "asteroid_id": id,
         "size": round(random.uniform(10.0, 1000.0), 2),  
         "velocity": round(random.uniform(5.0, 50.0), 2), 
-        "distance_from_earth": round(random.uniform(0.1, 10.0), 4),  
-        "direction_angle": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2)},  
-        "pos": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2)},
+        "direction_angle": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
+        "pos": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
     }
     id += 1
     return asteroid_data
