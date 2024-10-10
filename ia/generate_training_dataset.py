@@ -67,45 +67,67 @@ display(df)
 import numpy as np
 import pandas as pd
 
-def compute_gravitational_forces(df):
-    # Constante gravitationnelle
+# def compute_gravitational_forces(df):
+#     # Constante gravitationnelle
+#     G = 6.67430e-11
+
+#     df['attraction_x'] = 0.0
+#     df['attraction_y'] = 0.0
+#     df['attraction_z'] = 0.0
+
+#     positions = df[['position_x', 'position_y', 'position_z']].values
+#     masses = df['mass'].values
+
+#     n = df.shape[0]
+#     for i in range(n):
+#         diffs = (positions[i] - positions[i+1:]) * 1000
+#         distances = np.linalg.norm(diffs, axis=1)
+#         masses_product = masses[i] * masses[i+1:]
+
+#         attractions = G * masses_product / (distances**2 + 1)
+
+#         forces = (attractions[:, np.newaxis] * diffs) / distances[:, np.newaxis]
+
+#         df.loc[i, 'attraction_x'] += np.sum(forces[:, 0])
+#         df.loc[i, 'attraction_y'] += np.sum(forces[:, 1])
+#         df.loc[i, 'attraction_z'] += np.sum(forces[:, 2])
+
+#         df.loc[i+1:, 'attraction_x'] -= forces[:, 0]
+#         df.loc[i+1:, 'attraction_y'] -= forces[:, 1]
+#         df.loc[i+1:, 'attraction_z'] -= forces[:, 2]
+
+#     return df
+
+# df = compute_gravitational_forces(df)
+
+def compute_gravitational_forces_between_two_objects(object_1, object_2):
     G = 6.67430e-11
+    
+    distance_x = object_1["position_x"] - object_2["position_x"]
+    distance_y = object_1["position_y"] - object_2["position_y"]
+    distance_z = object_1["position_z"] - object_2["position_z"]
+    
+    mass = object_1["mass"]
+    size = object_1["size"]
 
-    # Initialisation des colonnes d'attraction
-    df['attraction_x'] = 0.0
-    df['attraction_y'] = 0.0
-    df['attraction_z'] = 0.0
+    distance = np.sqrt(distance_x**2 + distance_y**2 + distance_z**2)
+    
+    attraction = G * (mass * size) / (distance**2 + 1)  # Ajout du +1 pour éviter la division par 0
+    
+    attraction_x = attraction * distance_x / distance
+    attraction_y = attraction * distance_y / distance
+    attraction_z = attraction * distance_z / distance
 
-    # Extraction des positions et des tailles sous forme de tableaux NumPy
-    positions = df[['position_x', 'position_y', 'position_z']].values
-    masses = df['mass'].values
+    return (attraction_x, attraction_y, attraction_z)
 
-    # Pré-calcul des forces gravitationnelles pour chaque paire
-    n = df.shape[0]
-    for i in range(n):
-        diffs = (positions[i] - positions[i+1:]) * 1000  # Calcul des différences de positions
-        distances = np.linalg.norm(diffs, axis=1)  # Distance euclidienne entre chaque paire (i, j)
-        masses_product = masses[i] * masses[i+1:]  # Produit des masses pour chaque paire
 
-        # Calcul de la force gravitationnelle (évite division par zéro en ajoutant +1 à distance^2)
-        attractions = G * masses_product / (distances**2 + 1)
-
-        # Composantes de la force gravitationnelle
-        forces = (attractions[:, np.newaxis] * diffs) / distances[:, np.newaxis]
-
-        # Mise à jour des forces gravitationnelles
-        df.loc[i, 'attraction_x'] += np.sum(forces[:, 0])
-        df.loc[i, 'attraction_y'] += np.sum(forces[:, 1])
-        df.loc[i, 'attraction_z'] += np.sum(forces[:, 2])
-
-        # Mise à jour des forces opposées (Newton)
-        df.loc[i+1:, 'attraction_x'] -= forces[:, 0]
-        df.loc[i+1:, 'attraction_y'] -= forces[:, 1]
-        df.loc[i+1:, 'attraction_z'] -= forces[:, 2]
-
-    return df
-
-df = compute_gravitational_forces(df)
 display(df)
 
 df.to_csv("asteroids.csv", encoding='utf-8', index=False)
+
+
+
+
+
+ 
+tools.display_dataframe_to_user(name="Attraction Dataset (Gravitational Logic)", dataframe=df)
