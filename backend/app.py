@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from kafka import KafkaProducer
+from kafka import KafkaProducer, KafkaConsumer
 from marshmallow import Schema, fields, ValidationError
 import json
 import random
@@ -12,7 +12,13 @@ producer = KafkaProducer(
     bootstrap_servers='kafka:9092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
-
+consumer = KafkaConsumer(
+    'topic3', 
+    bootstrap_servers='kafka:9092',
+    value_deserializer=lambda v: json.loads(v.decode('utf-8')),
+    auto_offset_reset='latest',  
+    group_id='flask-group'
+)
 class AsteroidSchema(Schema):
     count = fields.Int(required=True)
 
@@ -62,7 +68,15 @@ def get_asteroid():
     producer.send('topic2', "Hello, World!")
     producer.flush()
 
-    return jsonify({"message": "pas fini fais un post"}), 200
+    response_message = None
+    for message in consumer:
+        response_message = message.value
+        break  
+
+    if response_message:
+        return jsonify({"message": response_message}), 200
+    else:
+        return jsonify({"error": "No response received"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5550)
