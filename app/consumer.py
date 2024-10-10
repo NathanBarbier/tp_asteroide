@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType, DateTimeType
 from pyspark.sql.functions import from_json, col
 
 # Créer la session Spark
@@ -21,6 +21,7 @@ schema = StructType([
     StructField("velocity", FloatType(), True),
     StructField("direction", MapType(StringType(), FloatType()), True),
     StructField("position", MapType(StringType(), FloatType()), True),
+    StructField("updated_at", DateTimeType(), True)
 ])
 
 # Récupération des données de mon stream kafka
@@ -42,7 +43,7 @@ query = df \
     .writeStream \
     .format("json") \
     .option("path", "hdfs://namenode:9000/Data/asteroid_data") \
-    .option("checkpointLocation", "hdfs://namenode:9000/Data/asteroid_data/checkpoint") \
+    .option("checkpointLocation", "hdfs://namenode:9000/Checkpoints/asteroid_checkpoint") \
     .outputMode("append") \
     .trigger(processingTime='1 seconds') \
     .start()

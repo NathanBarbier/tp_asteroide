@@ -3,6 +3,8 @@ from kafka import KafkaProducer
 from marshmallow import Schema, fields, ValidationError
 import json
 import random
+from datetime import datetime
+
 
 app = Flask(__name__)
 
@@ -26,6 +28,7 @@ def generate_asteroid():
         "velocity": round(random.uniform(5.0, 50.0), 2), 
         "direction": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
         "position": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     id += 1
     return asteroid_data
