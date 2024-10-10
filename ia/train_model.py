@@ -37,5 +37,9 @@ print("r2 z : ", r2_z)
 mean_r2 = (r2_x + r2_y + r2_z) / 3
 
 print("mean r2 : ", mean_r2)
-if (mean_r2 < 0.75):
+if (mean_r2 > 0.80):
+    print("Le modele est pas mal")
+if (mean_r2 > 0.40 and mean_r2 < 0.60):
+    print("Le modele ne sert à rien")
+if (mean_r2 < 0.40):
     print("Le modele est à chier")
