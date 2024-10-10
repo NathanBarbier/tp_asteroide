@@ -4,6 +4,8 @@ from kafka import KafkaProducer, KafkaConsumer
 from marshmallow import Schema, fields, ValidationError
 import json
 import random
+from datetime import datetime
+
 
 app = Flask(__name__)
 CORS(app)
@@ -28,17 +30,17 @@ id = 0
 
 def generate_asteroid():
     global id
-    condition = True
-    while condition:
-        asteroid_data = {
-            "asteroid_id": id,
-            "size": round(random.uniform(10.0, 1000.0), 2),  
-            "velocity": round(random.uniform(5.0, 50.0), 2), 
-            "direction": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
-            "position": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
-        }
-        if asteroid_data["position"]["x"] != 0 and asteroid_data["position"]["y"] != 0 and asteroid_data["position"]["z"] != 0:
-            condition = False
+    asteroid_data = {
+        "asteroid_id": id,
+        "size": round(random.uniform(10.0, 1000.0), 2),  
+        "velocity": round(random.uniform(5.0, 50.0), 2), 
+        "direction": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
+        "position": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    if asteroid_data["position"]["x"] != 0 and asteroid_data["position"]["y"] != 0 and asteroid_data["position"]["z"] != 0:
+        condition = False
     id += 1
     return asteroid_data
 
