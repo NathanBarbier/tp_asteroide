@@ -37,9 +37,10 @@ def generate_asteroid():
         "direction": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
         "position": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
 
-        if asteroid_data["position"]["x"] != 0 and asteroid_data["position"]["y"] != 0 and asteroid_data["position"]["z"] != 0:
-            condition = False
+    if asteroid_data["position"]["x"] != 0 and asteroid_data["position"]["y"] != 0 and asteroid_data["position"]["z"] != 0:
+        condition = False
     id += 1
     return asteroid_data
 
