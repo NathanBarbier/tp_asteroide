@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType, DateTimeType
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType
 from pyspark.sql.functions import from_json, col
 
 # Créer la session Spark
@@ -21,7 +21,7 @@ schema = StructType([
     StructField("velocity", FloatType(), True),
     StructField("direction", MapType(StringType(), FloatType()), True),
     StructField("position", MapType(StringType(), FloatType()), True),
-    StructField("updated_at", DateTimeType(), True)
+    StructField("updated_at", StringType(), True)
 ])
 
 # Récupération des données de mon stream kafka
