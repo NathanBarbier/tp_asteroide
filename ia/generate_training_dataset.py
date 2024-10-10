@@ -62,15 +62,14 @@ def generate_asteroids_dataframe(asteroids_to_generate_counter=10):
     return asteroids_df
 
 
-df = generate_asteroids_dataframe(10)
+df = generate_asteroids_dataframe(250)
 df.reset_index(drop=True, inplace=True)
 display(df)
 
 def compute_gravitational_forces_between_two_objects(object_1, object_2):
+
     # constante gravitationelle
     G = 6.67430e-11
-
-    # print(object_1, object_2)
     
     distance_x = object_1["position_x"] - object_2["position_x"]
     distance_y = object_1["position_y"] - object_2["position_y"]
@@ -91,11 +90,12 @@ def compute_gravitational_forces_between_two_objects(object_1, object_2):
 
 
 def compute_gravitational_forces(df):
-    for asteroid in df.iterrows():
+    actions_count = 0
+    total_actions = df.shape[0]**2 - df.shape[0] 
 
-        attraction_x = 0
-        attraction_y = 0
-        attraction_z = 0
+    progress_bar_length = 100
+    progress_bar = "|" + " " * progress_bar_length + "|"
+    last_percent = 0
 
     for i, asteroid in df.iterrows():
         attraction_x = 0
@@ -104,8 +104,18 @@ def compute_gravitational_forces(df):
         
         for j, other_asteroid in df.iterrows():
                 if i != j:
+                    progress_percent = round((actions_count / total_actions) * 100, 2)
+
+                    if round(progress_percent, 0) > last_percent:
+                        filled_length = int(progress_percent)
+                        progress_bar = "|" + "█" * filled_length + " " * (progress_bar_length - filled_length) + "|"
+                        last_percent = round(progress_percent, 0)
+
+                    # print(progress_bar, end="\r")
+                    print("GENERATE CSV PROGRESS : ", progress_bar, progress_percent, "%", end="\r")
+
+                    actions_count += 1
                     attractions = compute_gravitational_forces_between_two_objects(asteroid, other_asteroid)
-                    print(attractions)
                     
                     attraction_x += attractions[0]
                     attraction_y += attractions[1]
