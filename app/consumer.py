@@ -46,6 +46,3 @@ query = df \
     .outputMode("append") \
     .trigger(processingTime='1 seconds') \
     .start()
-
-# Ne pas terminer le fichier tant que mon stream n'est pas fini
-query.awaitTermination()
