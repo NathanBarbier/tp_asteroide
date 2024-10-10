@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-from kafka import KafkaProducer
+from flask_cors import CORS
+from kafka import KafkaProducer, KafkaConsumer
 from marshmallow import Schema, fields, ValidationError
 import json
 import random
@@ -7,12 +8,19 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+CORS(app)
 
 producer = KafkaProducer(
     bootstrap_servers='kafka:9092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
-
+consumer = KafkaConsumer(
+    'topic3', 
+    bootstrap_servers='kafka:9092',
+    value_deserializer=lambda v: json.loads(v.decode('utf-8')),
+    auto_offset_reset='latest',  
+    group_id='flask-group'
+)
 class AsteroidSchema(Schema):
     count = fields.Int(required=True)
 
@@ -29,12 +37,14 @@ def generate_asteroid():
         "direction": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},  
         "position": {"x": round(random.uniform(0.0, 1000000.0), 2), "y": round(random.uniform(0.0, 1000000.0), 2), "z": round(random.uniform(0.0, 1000000.0), 2)},
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
+
+        if asteroid_data["position"]["x"] != 0 and asteroid_data["position"]["y"] != 0 and asteroid_data["position"]["z"] != 0:
+            condition = False
     id += 1
     return asteroid_data
 
 @app.route('/asteroid', methods=['POST'])
-def add_user():
+def add_asteroid():
     json_data = request.get_json()
     if not json_data:
         return jsonify({"message": "No input data provided"}), 400
@@ -51,8 +61,23 @@ def add_user():
     
     producer.send('topic1', asteroids)
     producer.flush()
+    return jsonify(asteroids, 200)
 
-    return jsonify({"message": "Asteroid data received and sent to Kafka"}), 200
+@app.route('/asteroid', methods=['GET'])
+def get_asteroid():
+
+    producer.send('topic2', "Hello, World!")
+    producer.flush()
+
+    response_message = None
+    for message in consumer:
+        response_message = message.value
+        break  
+
+    if response_message:
+        return jsonify({"message": response_message}), 200
+    else:
+        return jsonify({"error": "No response received"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5550)
