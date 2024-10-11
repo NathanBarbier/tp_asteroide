@@ -5,7 +5,7 @@ from sklearn.metrics import r2_score
 
 df = pd.read_csv("asteroids.csv")
 
-X = df[['mass', 'size', 'velocity', 'direction_x', 'direction_y', 'direction_z', 'position_x', 'position_y', 'position_z']]
+X = df[['mass', 'size', 'velocity', 'position_x', 'position_y', 'position_z']]
 y_x = df['attraction_x']
 y_y = df['attraction_y']
 y_z = df['attraction_z']

@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType
-from pyspark.sql.functions import from_json, col
+from pyspark.sql.types import StructType, StructField, StringType, FloatType, MapType, IntegerType
+from pyspark.sql.functions import from_json, col, regexp_replace, explode,ArrayType
 
 # Créer la session Spark
 spark = SparkSession.builder.appName("AsteroidDataToCSV").getOrCreate()
@@ -15,14 +15,22 @@ kafka_topic_name = "topic1"
 kafka_bootstrap_servers = 'kafka:9092'
 
 # Définir le schéma pour les données JSON
-schema = StructType([
-    StructField("asteroid_id", StringType(), True),
+schema = ArrayType(StructType([
+    StructField("asteroid_id", IntegerType(), True),
     StructField("size", FloatType(), True),
     StructField("velocity", FloatType(), True),
-    StructField("direction", MapType(StringType(), FloatType()), True),
-    StructField("position", MapType(StringType(), FloatType()), True),
+    StructField("direction", StructType([
+      StructField("x", FloatType(), True),
+      StructField("y", FloatType(), True),
+      StructField("z", FloatType(), True),
+    ]), True),
+    StructField("position", StructType([
+      StructField("x", FloatType(), True),
+      StructField("y", FloatType(), True),
+      StructField("z", FloatType(), True),
+    ]), True),
     StructField("updated_at", StringType(), True)
-])
+]))
 
 # Récupération des données de mon stream kafka
 df = spark \
@@ -31,15 +39,17 @@ df = spark \
     .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
     .option("subscribe", kafka_topic_name) \
     .load()
+    
+df_string = df.selectExpr("CAST(value AS STRING)") 
+df_json = df_string.select(from_json("value", schema).alias("data")).select(explode(col("data")).alias("asteroid")).select("asteroid.*")
+df_json.writeStream \
+    .format("console") \
+    .option("truncate", "false") \
+    .outputMode("append") \
+    .start() \
 
-# Caster les données de mon string pour les rendre utilisables
-df = df.selectExpr("CAST(value AS STRING)")
 
-# Diviser les données JSON en colonnes avec le schéma défini
-df = df.select(from_json("value", schema).alias("data")).select("data.*")
-
-# Utiliser le partitionnement par asteroid_id pour créer un fichier par astéroïde
-query = df \
+query = df_json \
     .writeStream \
     .format("json") \
     .option("path", "hdfs://namenode:9000/Data/asteroid_data") \
@@ -47,3 +57,5 @@ query = df \
     .outputMode("append") \
     .trigger(processingTime='1 seconds') \
     .start()
+
+query.awaitTermination()
