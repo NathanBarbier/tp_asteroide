@@ -11,12 +11,12 @@ def update_asteroids(a,b):
     new_df = None
 
     try:
-        new_df = spark.read.json("hdfs://namenode:9000/Data/asteroid_data/")
+        new_df = spark.read.json("hdfs://namenode:9000/Data/asteroid_data/*.json")
     except Exception as e:
         print(e)
 
     try:
-        old_df = spark.read.json("hdfs://namenode:9000/Data/updated_asteroid_data/")
+        old_df = spark.read.json("hdfs://namenode:9000/Data/updated_asteroid_data/*.json")
     except Exception as e:
         print(e)
 
@@ -77,5 +77,5 @@ def update_asteroids(a,b):
         .option("kafka.bootstrap.servers", "kafka:9092") \
         .option("topic", "topic3") \
         .save()
-
+    
     updated_df.write.mode("overwrite").json("hdfs://namenode:9000/Data/updated_asteroid_data/")

@@ -18,7 +18,7 @@ consumer = KafkaConsumer(
     'topic3', 
     bootstrap_servers='kafka:9092',
     value_deserializer=lambda v: json.loads(v.decode('utf-8')),
-    auto_offset_reset='latest',  
+    auto_offset_reset='earliest',  
     group_id='flask-group'
 )
 class AsteroidSchema(Schema):
@@ -70,13 +70,13 @@ def get_asteroid():
     producer.send('topic2', "Hello, World!")
     producer.flush()
 
-    response_message = None
-    for message in consumer:
-        response_message = message.value
-        break  
-
-    if response_message:
-        return jsonify({"message": response_message}), 200
+    data = []
+    i = 0
+    for row in consumer:
+        data.append(row.value)
+        break
+    if data:
+        return jsonify(data, 200)
     else:
         return jsonify({"error": "No response received"}), 500
 

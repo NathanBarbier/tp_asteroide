@@ -46,7 +46,7 @@ df_json.writeStream \
     .format("console") \
     .option("truncate", "false") \
     .outputMode("append") \
-    .start() \
+    .start() 
 
 
 query = df_json \
@@ -56,6 +56,5 @@ query = df_json \
     .option("checkpointLocation", "hdfs://namenode:9000/Checkpoints/asteroid_checkpoint") \
     .outputMode("append") \
     .trigger(processingTime='1 seconds') \
-    .start()
-
-query.awaitTermination()
+    .start() \
+    .awaitTermination()
